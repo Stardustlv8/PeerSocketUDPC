@@ -5,19 +5,23 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pthread.h>
+
 /*Abstraccion de una clase*/
 struct sockaddr_in serverSocketAddr;
 struct sockaddr_in clientSocketAddr;
+
 unsigned short serverPort;
+
 int idServerSocket;
 int idBindServerSocket;
 int idReceiveServerSocket;
 
 void createSocket(int port){
+    /**Abstraccion de constructor e inicio de socket unicast*/
     
     serverPort = port;
     
-    idServerSocket = socket(PF_INET, SOCK_DRGRAM, IPPROTO_UDP);
+    idServerSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
     
     if(idServerSocket == -1) exit(-1);
 
@@ -32,7 +36,8 @@ void createSocket(int port){
     idBindServerSocket = bind(idServerSocket, (struct sockaddr *)&serverSocketAddr, sizeof(serverSocketAddr));
 }
 
-void sendToMessage(char * message, char * ip, int port){
+void * sendToMessage(char * message, char * ip, int port){
+   
     struct sockaddr_in toAddress;
 
     toAddress.sin_family = AF_INET;
@@ -46,10 +51,10 @@ void sendToMessage(char * message, char * ip, int port){
     sendto(idServerSocket, message, sizeof(message), 0, (struct sockaddr*)&toAddress, sizeof(toAddress));
 }
 
-void receiveToMessage(char * message){
+void * receiveToMessage(char * message){
     
     int clientSocketAddrLen = sizeof(clientSocketAddr);
 
-    int receive = recvfrom(idServerSocket, message,sizeof(message), 0, (struct sockaddr *)&clientSocketAddr, &clientSocketAddrLen);
+    int receive = recvfrom(idServerSocket, message, sizeof(message), 0, (struct sockaddr *)&clientSocketAddr, &clientSocketAddrLen);
 
 }
