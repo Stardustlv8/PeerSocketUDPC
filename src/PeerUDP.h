@@ -10,6 +10,12 @@
 struct sockaddr_in serverSocketAddr;
 struct sockaddr_in clientSocketAddr;
 
+typedef struct{
+    char * message;
+    char * ip;
+    int port;
+}ToNodo;
+
 unsigned short serverPort;
 
 int idServerSocket;
@@ -25,6 +31,10 @@ void createSocket(int port){
     
     if(idServerSocket == -1) exit(-1);
 
+    struct timeval timeout = {2, 0};
+
+    setsockopt(idServerSocket, SOL_SOCKET, SO_RCVTIMEO, (char *) &timeout, sizeof(timeout));;
+
     serverSocketAddr.sin_family = AF_INET;
 
     serverSocketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -36,7 +46,7 @@ void createSocket(int port){
     idBindServerSocket = bind(idServerSocket, (struct sockaddr *)&serverSocketAddr, sizeof(serverSocketAddr));
 }
 
-void * sendToMessage(char * message, char * ip, int port){
+void sendToMessage(char * message, char * ip, int port){
    
     struct sockaddr_in toAddress;
 
@@ -51,10 +61,39 @@ void * sendToMessage(char * message, char * ip, int port){
     sendto(idServerSocket, message, sizeof(message), 0, (struct sockaddr*)&toAddress, sizeof(toAddress));
 }
 
-void * receiveToMessage(char * message){
+void receiveToMessage(char * message){
     
     int clientSocketAddrLen = sizeof(clientSocketAddr);
 
     int receive = recvfrom(idServerSocket, message, sizeof(message), 0, (struct sockaddr *)&clientSocketAddr, &clientSocketAddrLen);
+
+}
+
+void stanbyMessage(void * args){
+    
+    char buffer[30];
+
+    char *buffer2 = "null";
+
+    while(1){
+
+        receiveToMessage(buffer);
+
+        printf("Mensaje leido: %s\n", buffer);
+        
+        strcpy(buffer, buffer2);
+
+        sleep(1);
+    
+    }
+
+}
+
+void run(){
+
+    pthread_t idHilo1;
+
+    int hilo1 = pthread_create(&idHilo1, NULL, (void *)stanbyMessage, NULL);
+    if(hilo1 == -1) exit(-1); 
 
 }

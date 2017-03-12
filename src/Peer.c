@@ -1,19 +1,29 @@
 #include "PeerUDP.h"
 
 int main(){
+
     char mensaje[30];
 
     createSocket(3001);
     
-    receiveToMessage(mensaje);
+    run();
 
-    printf("Mensaje recibido: %s\n", mensaje);
+    int counter = 0;
 
-    char * mensaje2 = "adios!";
+    while(1){
 
-    sendToMessage(mensaje2,"192.168.15.6",3002);
+        char * mensaje2 = "adios!";
 
-    printf("Mensaje enviado: %s\n", mensaje2);
+        sendToMessage(mensaje2,"192.168.15.6",3002);
+
+        printf("Mensaje enviado: %s %d\n", mensaje2, counter);
+
+        counter++;
+
+        sleep(1);
+
+    }
 
     return 0;
+
 }
